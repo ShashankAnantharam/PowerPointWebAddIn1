@@ -1,0 +1,72 @@
+﻿#content-header {
+    background: #2a8dd4;
+    color: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    overflow: hidden;
+}
+
+#content-main {
+    background: #fff;
+    position: fixed;
+    top: 5px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+}
+
+#inspire-bot-iframe {
+    height: 1000px;
+}
+
+.padding {
+    padding: 15px;
+}
+
+.individualIcons{
+    width: 52px;
+    height: 52px;
+    margin: 4px;
+    cursor: pointer;
+}
+
+.keyword-selected{
+    color: white;
+    background-color: #3c3b3b;
+    font-weight: bold;
+    margin: 5px 8px 5px 5px;
+    padding: 5px 20px 5px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.keyword-unselected {
+    color: black;
+    background-color: #b3aeae;
+    margin: 5px 8px 5px 5px;
+    padding: 5px 20px 5px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.buttonMain {
+    color: white;
+    background-color: #086fca;
+    border-color: #086fca; 
+    font-weight: bold;
+    border-radius: 30px;
+    border-width: 0;
+    padding: 5px;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+}
+
+.individualIconsContainer{
+    display: flex;
+    flex-wrap: wrap;
+}
