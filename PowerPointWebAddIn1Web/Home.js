@@ -18,6 +18,7 @@
     const commonVerbs = { "be": "", "have": "", "do": "", "will": "", "run": "", "can": "", "am": "" }
     var iconListMap = {};
     var keywordSelected = {};
+    var pluralsMap = {};
 
     function renderKeywords(keywords) {
         if (isNullOrUndefined(keywords))
@@ -271,28 +272,22 @@
                 entities[i].name = lemmaMap[entities[i].name];
             }
             let mentions = entities[i].mentions
-            let plurals = {}
             for (let j = 0; !isNullOrUndefined(mentions) && j < mentions.length; j++) {
                 if (mentions[j].text && mentions[j].text in lemmaMap) {
 
                     if (entities[i].mentions[j].text != lemmaMap[entities[i].mentions[j].text]) {
                         //Plural
-                        if (!(entities[i].mentions[j].text in plurals)) {
-                            plurals[entities[i].mentions[j].text] = JSON.parse(JSON.stringify(entities[i].mentions[j]));
-                        }
+                        pluralsMap[lemmaMap[entities[i].mentions[j].text]] = entities[i].mentions[j].text;   
                     }
 
                     entities[i].mentions[j].text = lemmaMap[entities[i].mentions[j].text]
                 }
             }
 
-            //Add plurals
-            for (var pluralEntity in plurals) {
-                entities[i].mentions.push(plurals[pluralEntity]);
-            }
         }
         // console.log(entities);
         // console.log(verbList);
+        console.log(pluralsMap);
 
         return { "entities": entities, "verbList": verbList };
     }
@@ -448,13 +443,31 @@
             return;
         }
 
-        let outputProm = [], output_nounProjProm = [];
+        let outputProm = [], output_nounProjProm = [], outputPluralProm = [];
         outputProm = searchIconsFromKeywords(query);
+
+        if (query in pluralsMap)
+            outputPluralProm = searchIconsFromKeywords(pluralsMap[query]);
+
         // output_nounProjProm = CoreHelper.searchNounProjectIconsFromKeywords(query);
 
-        let [output, output_nounProj] = await Promise.all([outputProm, output_nounProjProm]);
+        let [output, outputPlural, output_nounProj] = await Promise.all([outputProm, outputPluralProm, output_nounProjProm]);
 
-        output = [...output, ...output_nounProj];
+        output = [...output, ...outputPlural, ...output_nounProj];
+
+        //dedup output
+        let tempIconMap = {}
+        let tempOutput = [];
+        for (let i = 0; !isNullOrUndefined(output) && i < output.length; i++) {
+            if ("api_src" in output[i] && "id" in output[i]) {
+                let key = output[i].api_src + "_" + output[i].id;
+                if (!(key in tempIconMap)) {
+                    tempIconMap[key] = 1;
+                    tempOutput.push(output[i]);
+                }
+            }
+        }
+        output = tempOutput;
 
         if (isNullOrUndefined(output) || output.length < 5) {
             let synonyms = [];
