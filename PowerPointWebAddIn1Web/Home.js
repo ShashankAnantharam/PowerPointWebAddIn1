@@ -9,6 +9,8 @@
           //  $('#insert-image').click(insertImage);
           //  $('#insert-text').click(insertText);
             $('#get-text').click(getText);
+            $('#prevPage').click(prevPage);
+            $('#nextPage').click(nextPage);
 
 
         });
@@ -16,9 +18,36 @@
 
     const entityCommonLen = 6;
     const commonVerbs = { "be": "", "have": "", "do": "", "will": "", "run": "", "can": "", "am": "" }
+    const pageMultiple = 7;
     var iconListMap = {};
+    var iconKeywords = [];
     var keywordSelected = {};
     var pluralsMap = {};
+    var currPage = 1;
+    var min = 1, max = 2;
+
+    function changePage(increment) {
+        if (currPage + increment >= min && currPage + increment <= max) {
+            currPage = currPage + increment;
+
+            //change icons here
+            for (let i = 0; i < iconKeywords.length; i++) {
+                // console.log(iconKeywords[i]);
+                let keywordName = iconKeywords[i].name;
+                renderIcons(keywordName);
+            }
+        }
+    }
+
+    function prevPage() {
+        // console.log("prevPage");
+        changePage(-1);
+    }
+
+    function nextPage() {
+        // console.log("nextPage");
+        changePage(1);
+    }
 
     function renderKeywords(keywords) {
         if (isNullOrUndefined(keywords))
@@ -55,7 +84,11 @@
 
         if (!isNullOrUndefined(keyword) && keyword in iconListMap && iconListMap[keyword].length > 0) {
             let icons = iconListMap[keyword];
-            for (let i = 0; i < icons.length; i++) {
+
+            let start = (currPage - 1) * pageMultiple;
+            let end = (currPage) * pageMultiple;
+
+            for (let i = start; i < icons.length && i < end; i++) {
                 let icon = icons[i];
                 let iconId = icon.api_src + "-" + icon.id;
                 $("#icon-keyword-" + keyword).append("<img class=\"individualIcons\" src=\"" + icon.preview_url + "\" id=\"" + iconId + "\"/>");
@@ -217,6 +250,7 @@
                 }
                 console.log(finalList);
 
+                iconKeywords = finalList;
                 renderKeywords(finalList);
                 initializeRenderIcons(finalList);
 
