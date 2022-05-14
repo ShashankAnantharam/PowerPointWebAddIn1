@@ -15,7 +15,7 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 30px;
+    height: 35px;
     overflow: hidden;
 }
 
@@ -25,7 +25,7 @@
     top: 5px;
     left: 0;
     right: 0;
-    bottom: 30px;
+    bottom: 35px;
     overflow: auto;
 }
 
@@ -55,6 +55,7 @@
 
 #currentPage {
     padding: 3px;
+    font-weight: bold;
 }
 
 .individualIcons {

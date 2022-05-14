@@ -24,11 +24,23 @@
     var keywordSelected = {};
     var pluralsMap = {};
     var currPage = 1;
-    var min = 1, max = 2;
+    var minPage = 1, maxPage = 2;
 
     function changePage(increment) {
-        if (currPage + increment >= min && currPage + increment <= max) {
+        if (isNextPage()) {
+            maxPage = currPage + 1;
+        }
+        else {
+            maxPage = currPage;
+        }
+
+        // console.log("Page change", currPage, maxPage);
+
+        if (currPage + increment >= minPage && currPage + increment <= maxPage) {
             currPage = currPage + increment;
+
+            //change page number in UX
+            updatePageUX();
 
             //change icons here
             for (let i = 0; i < iconKeywords.length; i++) {
@@ -36,6 +48,21 @@
                 let keywordName = iconKeywords[i].name;
                 renderIcons(keywordName);
             }
+        }
+    }
+
+    function updatePageUX(){
+        $("#currentPage").html("");
+        $("#currentPage").append("Page " + String(currPage))
+
+        $("#nextPage").html("");
+        if (isNextPage()) {
+            $("#nextPage").append("chevron_right")
+        }
+
+        $("#prevPage").html("");
+        if (currPage>1) {
+            $("#prevPage").append("chevron_left")
         }
     }
 
@@ -48,6 +75,27 @@
         // console.log("nextPage");
         changePage(1);
     }
+
+    function isNextPage() {
+        for (let i = 0; i < iconKeywords.length; i++) {
+            let keyword = iconKeywords[i].name;
+            if ((keyword in keywordSelected)) {
+                if (!isNullOrUndefined(keyword) && keyword in iconListMap && iconListMap[keyword].length > 0) {
+                    let icons = iconListMap[keyword];
+                    let start = (currPage) * pageMultiple;
+                    if (icons.length >= start)
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function initializePages(){
+        currPage = 1;
+        updatePageUX();
+    }
+
 
     function renderKeywords(keywords) {
         if (isNullOrUndefined(keywords))
@@ -167,6 +215,7 @@
         }
 
         renderIcons(keyword);
+        updatePageUX();
     }
    
     function insertImage(base64string) {
@@ -253,6 +302,8 @@
                 iconKeywords = finalList;
                 renderKeywords(finalList);
                 initializeRenderIcons(finalList);
+
+                initializePages();
 
                 let iconsPromise = [];
                 for (let i = 0; i < finalList.length; i++) {
@@ -474,6 +525,7 @@
 
         if (iconListMap[query] && iconListMap[query].length > 0) {
             renderIcons(query);
+            updatePageUX();
             return;
         }
 
@@ -536,6 +588,7 @@
         iconListMap[query] = output;
 
         renderIcons(query);
+        updatePageUX();
     }
 
     async function searchIconsFromKeywords(query) {
