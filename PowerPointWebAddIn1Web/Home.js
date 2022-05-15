@@ -18,7 +18,7 @@
 
     const entityCommonLen = 6;
     const commonVerbs = { "be": "", "have": "", "do": "", "will": "", "run": "", "can": "", "am": "" }
-    const pageMultiple = 7;
+    const pageMultiple = 8;
     var iconListMap = {};
     var iconKeywords = [];
     var keywordSelected = {};
@@ -596,7 +596,7 @@
             return [];
 
 
-        let bodyJson = { 'query': query }
+        let bodyJson = { 'query': query, 'count': 20, 'style':'all' }
 
         let output = [];
         const endpoint = 'https://us-central1-flowpro-9e1c6.cloudfunctions.net/iconfinderApiSearch';
