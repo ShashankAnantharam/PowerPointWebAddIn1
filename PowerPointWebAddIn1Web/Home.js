@@ -23,6 +23,7 @@
     var iconKeywords = [];
     var keywordSelected = {};
     var pluralsMap = {};
+    var styleFiltersMap = {};
     var currPage = 1;
     var minPage = 1, maxPage = 2;
 
@@ -96,6 +97,16 @@
         updatePageUX();
     }
 
+    function initializeFilters() {
+        styleFiltersMap = {"All": ""};
+        $("#filters").html("");
+    }
+
+    function initializeKeywords() {
+        iconKeywords = [];
+        $("#keywords").html("");
+        initializeRenderIcons();
+    }
 
     function renderKeywords(keywords) {
         if (isNullOrUndefined(keywords))
@@ -111,6 +122,13 @@
             }, false);
         });
 
+    }
+
+    function renderStyleFilters() {
+        $("#filters").html("");
+        for (let styleFilter in styleFiltersMap) {
+            $("#filters").append("<div style=\"margin-right:20px\"><input type=\"checkbox\" id = \"" + styleFilter  + "\" > <label for=\"" + styleFilter + "\">" + styleFilter  + "</label></div >")
+        }
     }
 
     function initializeRenderIcons(keywords) {
@@ -280,6 +298,9 @@
                 console.log(argText);
                 console.log(selectedText);
 
+                initializeKeywords();
+                initializeFilters();
+
                 $('#inspire-bot-iframe').attr('src', old_src + "?q=" + argText);
                 console.log($('#inspire-bot-iframe').attr('src'));
                 // $('#inspire-bot-iframe').attr('src', url)
@@ -297,7 +318,7 @@
                 for (let j = 0; j < verbList.length; j++) {
                     finalList.push(verbList[j]);
                 }
-                console.log(finalList);
+                // console.log(finalList);
 
                 iconKeywords = finalList;
                 renderKeywords(finalList);
@@ -525,6 +546,7 @@
 
         if (iconListMap[query] && iconListMap[query].length > 0) {
             renderIcons(query);
+            renderStyleFilters();
             updatePageUX();
             return;
         }
@@ -554,6 +576,18 @@
             }
         }
         output = tempOutput;
+
+        //get filters
+        for (let i = 0; i < output.length; i++) {
+            if ('style' in output[i]) {
+                let currStyle = output[i]['style'];
+                if (!(currStyle in styleFiltersMap)) {
+                    styleFiltersMap[currStyle] = "";
+                }
+            }
+            //console.log(output[i])
+        }
+        console.log(styleFiltersMap);
 
         if (isNullOrUndefined(output) || output.length < 5) {
             let synonyms = [];
@@ -588,6 +622,7 @@
         iconListMap[query] = output;
 
         renderIcons(query);
+        renderStyleFilters();
         updatePageUX();
     }
 
