@@ -83,8 +83,9 @@
             if ((keyword in keywordSelected)) {
                 if (!isNullOrUndefined(keyword) && keyword in iconListMap && iconListMap[keyword].length > 0) {
                     let icons = iconListMap[keyword];
+                    icons = filterOnStyle(icons);
                     let start = (currPage) * pageMultiple;
-                    if (icons.length >= start)
+                    if (icons.length > start)
                         return true;
                 }
             }
@@ -98,7 +99,7 @@
     }
 
     function initializeFilters() {
-        styleFiltersMap = {"All": ""};
+        styleFiltersMap = {"All": true};
         $("#filters").html("");
     }
 
@@ -127,8 +128,69 @@
     function renderStyleFilters() {
         $("#filters").html("");
         for (let styleFilter in styleFiltersMap) {
-            $("#filters").append("<div style=\"margin-right:20px\"><input type=\"checkbox\" id = \"" + styleFilter  + "\" > <label for=\"" + styleFilter + "\">" + styleFilter  + "</label></div >")
+            let styleFilterId = "styleFilter_" + styleFilter
+            $("#filters").append("<div style=\"margin-right:20px\"><input type=\"checkbox\" id = \"" + styleFilterId + "\" checked> <label for=\"" + styleFilterId + "\">" + styleFilter + "</label></div >")
+            document.getElementById(styleFilterId).addEventListener("change", function () {
+                if (this.checked) {
+                    console.log("Checkbox is checked..");
+                    clickStyleFilter(styleFilter, true);
+                } else {
+                    console.log("Checkbox is not checked..");
+                    clickStyleFilter(styleFilter, false);
+
+                }
+            }, false);
         }
+    }
+
+    function softUpdateStyleFilters() {
+        for (let styleFilter in styleFiltersMap) {
+            let styleFilterId = "styleFilter_" + styleFilter;
+            document.getElementById(styleFilterId).checked = styleFiltersMap[styleFilter];
+        }
+    }
+
+    function clickStyleFilter(styleFilterId, currState) {
+        if (styleFilterId in styleFiltersMap) {
+            //toggle the style variable
+            styleFiltersMap[styleFilterId] = currState;
+
+            if (styleFilterId == "All") {
+                for (let styleFilter in styleFiltersMap) {
+                    styleFiltersMap[styleFilter] = currState;
+                }
+            }
+            else {
+                styleFiltersMap["All"] = false;
+            }
+
+            //update the UX
+            softUpdateStyleFilters();
+            for (let i = 0; i < iconKeywords.length; i++) {
+                let keywordName = iconKeywords[i].name;
+                renderIcons(keywordName);
+            }
+            updatePageUX();
+        }
+    }
+
+    function filterOnStyle(iconList) {
+        let finalArr = [];
+        for (let i = 0; !isNullOrUndefined(iconList) && i < iconList.length; i++) {
+            let shouldAdd = false;
+            if (styleFiltersMap["All"])
+                shouldAdd = true;
+            else if ('style' in iconList[i]) {
+                let currStyle = iconList[i]['style'];
+                if (currStyle in styleFiltersMap && styleFiltersMap[currStyle]) {
+                    shouldAdd = true;
+                }
+            }
+            if (shouldAdd) {
+                finalArr.push(iconList[i]);
+            }
+        }
+        return finalArr;
     }
 
     function initializeRenderIcons(keywords) {
@@ -150,6 +212,7 @@
 
         if (!isNullOrUndefined(keyword) && keyword in iconListMap && iconListMap[keyword].length > 0) {
             let icons = iconListMap[keyword];
+            icons = filterOnStyle(icons);
 
             let start = (currPage - 1) * pageMultiple;
             let end = (currPage) * pageMultiple;
@@ -582,7 +645,7 @@
             if ('style' in output[i]) {
                 let currStyle = output[i]['style'];
                 if (!(currStyle in styleFiltersMap)) {
-                    styleFiltersMap[currStyle] = "";
+                    styleFiltersMap[currStyle] = true;
                 }
             }
             //console.log(output[i])
